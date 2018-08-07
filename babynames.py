@@ -41,6 +41,39 @@ def extract_names(filename):
   ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
   """
   # +++your code here+++
+  final_lst = []
+
+  html_file = open(filename, 'r')
+  source_code = html_file.read()
+
+  match_obj = re.search(r'Popularity\sin\s(\d\d\d\d)', source_code)
+  if match_obj:
+    year = match_obj.group()[-4:]
+    final_lst.append(year)
+
+  
+  name_lst = re.findall(r'<td>(\d+)</td><td>(\w+)</td>\<td>(\w+)</td>', source_code)
+  name_obj = {}
+  for name in name_lst:
+    if name[1] in name_obj:
+      continue
+    else:
+      first_name, rank = name[1], name[0]
+      name_obj[first_name] = rank
+
+  for key, value in sorted(name_obj.items()):
+    final_lst.append(key + ' ' + value)
+  
+  text = '\n'.join(final_lst) + '\n'
+
+  if summary:
+    file = open(filename + ".summary", "w")
+    file.write(text)
+  else:
+    print text
+
+
+
   return
 
 
@@ -55,6 +88,7 @@ def main():
     sys.exit(1)
 
   # Notice the summary flag and remove it from args if it is present.
+  global summary
   summary = False
   if args[0] == '--summaryfile':
     summary = True
@@ -63,6 +97,8 @@ def main():
   # +++your code here+++
   # For each filename, get the names, then either print the text output
   # or write it to a summary file
+  extract_names(args[1])
   
 if __name__ == '__main__':
   main()
+  
